@@ -1,4 +1,6 @@
 #!/bin/sh
+# https://github.com/Maingron/various/tree/main/005%20scrcpy%20scripts
+
 set -eu
 VIDEO_NR=$(find /dev/ -name "video*" | wc -l)
 DEVP="/dev/video${VIDEO_NR}"
@@ -17,21 +19,27 @@ export SDL_VIDEODRIVER=dummy
 
 modprobe -r v4l2loopback || true
 
-sleep .25
+udevadm settle --timeout=10
 
-modprobe v4l2loopback devices=1 video_nr="$VIDEO_NR" card_label=scrcpy-cam exclusive_caps=1,1,1,1,1,1,1,1 max_width=$VIDEO_WIDTH max_height=$VIDEO_HEIGHT
+modprobe v4l2loopback devices=1 video_nr="$VIDEO_NR" card_label="scrcpy-cam" exclusive_caps=1,1,1,1,1,1,1,1 max_width=$VIDEO_WIDTH max_height=$VIDEO_HEIGHT
 
-sleep .25
+udevadm settle --timeout=10
 
 if [ -n "$SCRCPY_PREFERRED_DEVICE_SERIAL" ]; then
-	scrcpy --serial=$SCRCPY_PREFERRED_DEVICE_SERIAL --video-source=camera --camera-id=$CAMERA_ID --camera-size="${VIDEO_WIDTH}x${VIDEO_HEIGHT}" --no-audio --v4l2-sink="$DEVP" --video-codec=$VIDEO_CODEC $SCRCPY_ADD_ARGS
+	scrcpy --serial=$SCRCPY_PREFERRED_DEVICE_SERIAL --video-source=camera --max-fps=$VIDEO_FPS --camera-id=$CAMERA_ID --camera-size="${VIDEO_WIDTH}x${VIDEO_HEIGHT}" --no-audio --v4l2-sink="$DEVP" --video-codec=$VIDEO_CODEC $SCRCPY_ADD_ARGS
 else
-	scrcpy --video-source=camera --camera-id=$CAMERA_ID --camera-size="${VIDEO_WIDTH}x${VIDEO_HEIGHT}" --no-audio --v4l2-sink="$DEVP" --video-codec=$VIDEO_CODEC $SCRCPY_ADD_ARGS
+	scrcpy --video-source=camera --max-fps=$VIDEO_FPS --camera-id=$CAMERA_ID --camera-size="${VIDEO_WIDTH}x${VIDEO_HEIGHT}" --no-audio --v4l2-sink="$DEVP" --video-codec=$VIDEO_CODEC $SCRCPY_ADD_ARGS
 fi
 
-echo "Exiting scrcpy, cleaning up..."
+# Cleanup on exit, including Ctrl+C
+cleanup() {
+	echo "Exiting scrcpy, cleaning up..."
+	modprobe -r v4l2loopback || true
+	modprobe -r v4l2loopback 2>/dev/null || rmmod -f v4l2loopback
+	udevadm settle --timeout=10
+	echo "Cleaned up."
+}
 
-sleep .25
-
-# modprobe -r v4l2loopback
-modprobe -r v4l2loopback 2>/dev/null || rmmod -f v4l2loopback
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
