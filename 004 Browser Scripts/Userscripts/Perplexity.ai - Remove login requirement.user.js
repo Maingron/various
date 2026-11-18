@@ -9,7 +9,7 @@
 // @source           https://github.com/Maingron/random-stuff/blob/main/004%20Browser%20Scripts/Userscripts/Perplexity.ai%20-%20Remove%20login%20requirement.user.js
 // @downloadURL      https://raw.githubusercontent.com/Maingron/random-stuff/refs/heads/main/004%20Browser%20Scripts/Userscripts/Perplexity.ai%20-%20Remove%20login%20requirement.user.js
 // @updateURL        https://raw.githubusercontent.com/Maingron/random-stuff/refs/heads/main/004%20Browser%20Scripts/Userscripts/Perplexity.ai%20-%20Remove%20login%20requirement.user.js
-// @version          2026.06.1
+// @version          2026.11.0
 // @description      Remove login requirement on Perplexity.ai. This includes all annoying overlays, cookie banner and Login features.
 // @description:de   Login Bedingung auf Perpexity.ai entfernen. Dies entfernt alle nervigen Overlays, Cookie Banner und Login Features.
 // @description:en   Remove login requirement on Perplexity.ai. This includes all annoying overlays, cookie banner and Login features.
@@ -17,7 +17,7 @@
 // @icon             https://www.perplexity.ai/favicon.svg
 // @copyright        2026 Maingron
 // @created          2026-05-07
-// @modified         2026-06-17
+// @modified         2026-11-18
 // @license          MIT
 // @match            http*://www.perplexity.ai/*
 // @match            http*://perplexity.ai/*
@@ -50,6 +50,9 @@
 		"html[lang][dir] body #credential_picker_container iframe",
 		"html[lang][dir] body #cookie-consent",
 		"html[lang][dir] body div[data-type='portal']",
+		"html[lang][dir] body div[data-gate-presentation='full-sheet-blurred']",
+		"html[lang][dir] body div.fixed.inset-0.pointer-events-auto",
+		"html[lang][dir] body div.fixed.inset-0.pointer-events-none",
 		"html[lang][dir] body #radix-_r_m_",
 		"html[lang][dir] body #radix-_r_h_",
 		"html[lang][dir] body span[data-radix-focus-guard]", // Prevents page from interacting
